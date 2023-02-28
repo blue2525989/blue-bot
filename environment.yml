@@ -1,0 +1,37 @@
+name: botty
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pywin32
+  - pip
+  - leptonica
+  - tesseract=5.1.0
+  - pkg-config
+  - rapidfuzz
+  - pip:
+    - pyinstaller
+    - opencv-python==4.5.5.64
+    - transitions
+    - mss
+    - numpy
+    - mouse
+    - keyboard
+    - beautifultable
+    - pytweening
+    - requests
+    - coverage
+    - pytest
+    - pytest-env
+    - pytest-pythonpath
+    - pytest-mock
+    - graphviz
+    - psutil
+    - cryptography
+    - pillow
+    - discord.py
+    - parse
+    - dependencies/tesserocr-2.5.2-cp310-cp310-win_amd64.whl
+    - typing_extensions
+    - colorama
+    - dataclasses-json
