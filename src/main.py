@@ -109,6 +109,7 @@ def main():
     print("\n")
 
     # todo how can I register these global hotkeys?
+    # lets build these into physical keys on a breakout board
     keyboard.add_hotkey(Config().advanced_options['auto_settings_key'], lambda: adjust_settings())
     keyboard.add_hotkey(Config().advanced_options['graphic_debugger_key'], lambda: start_or_stop_graphic_debugger(controllers))
     keyboard.add_hotkey(Config().advanced_options['restore_settings_from_backup_key'], lambda: restore_settings_from_backup())
