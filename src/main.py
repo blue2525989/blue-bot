@@ -1,3 +1,6 @@
+
+import serial
+import serial.tools.list_ports
 from dataclasses import dataclass
 import keyboard
 import os
@@ -13,6 +16,10 @@ from game_controller import GameController
 from utils.graphic_debugger import GraphicDebuggerController
 from utils.misc import restore_d2r_window_visibility
 from utils.auto_settings import adjust_settings, backup_settings, restore_settings_from_backup
+
+
+
+
 
 @dataclass
 class Controllers():
@@ -60,6 +67,7 @@ def startup_checks():
 
 
 def main():
+
     # Create folder for debug screenshots if they dont exist yet
     for dir_name in ["log", "log/stats", "log/screenshots", "log/screenshots/info", "log/screenshots/items", "log/screenshots/pickit", "log/screenshots/generated"]:
         os.makedirs(dir_name, exist_ok=True)
@@ -76,7 +84,17 @@ def main():
         print(f"ERROR: Unkown logg_lvl {Config().advanced_options['logg_lvl']}. Must be one of [info, debug]")
     startup_checks()
 
-    print(f"============ Botty {__version__} [name: {Config().general['name']}] ============")
+    # this is a way to open a serial port on com5 and send controls to arduino
+    ser = serial.Serial()
+    ser.baudrate = Config().serial["baudrate"]
+    ser.port = Config().serial["port"]
+    ser.open()
+    ser.write(b"F1\n")
+    ser.close()
+
+    print(Config().serial["port"])
+
+    print(f"============ BlueBot {__version__} [name: {Config().general['name']}] ============")
     print("\nFor gettings started and documentation\nplease read https://github.com/aeon0/botty\n")
     table = BeautifulTable()
     table.set_style(BeautifulTable.STYLE_BOX_ROUNDED)
@@ -90,6 +108,7 @@ def main():
     print(table)
     print("\n")
 
+    # todo how can I register these global hotkeys?
     keyboard.add_hotkey(Config().advanced_options['auto_settings_key'], lambda: adjust_settings())
     keyboard.add_hotkey(Config().advanced_options['graphic_debugger_key'], lambda: start_or_stop_graphic_debugger(controllers))
     keyboard.add_hotkey(Config().advanced_options['restore_settings_from_backup_key'], lambda: restore_settings_from_backup())
