@@ -1,3 +1,4 @@
+import serial
 from typing import Callable
 import random
 import time
@@ -113,7 +114,13 @@ class IChar:
         if type(template_type) == list and "A5_STASH" in template_type:
             # sometimes waypoint is opened and stash not found because of that, check for that
             if is_visible(ScreenObjects.WaypointLabel):
-                keyboard.send("esc")
+                # keyboard.send("esc")
+                ser = serial.Serial()
+                ser.baudrate = 9600
+                ser.port = 'COM5'
+                ser.open()
+                ser.write('ESC\n')
+                ser.close()
         start = time.time()
         while timeout is None or (time.time() - start) < timeout:
             template_match = template_finder.search(template_type, grab(), threshold=threshold)
@@ -152,19 +159,31 @@ class IChar:
             return True
 
     def _remap_skill_hotkey(self, skill_asset, hotkey, skill_roi, expanded_skill_roi):
+        ser = serial.Serial()
+        ser.baudrate = Config().serial["baudrate"]
+        ser.port = Config().serial["port"]
+        ser.open()
         x, y, w, h = skill_roi
         x, y = convert_screen_to_monitor((x, y))
-        mouse.move(x + w/2, y + h / 2)
-        mouse.click("left")
+        # mouse.move(x + w/2, y + h / 2)
+        # mouse.click("left")
+        ser.write(f'{x + w/2},{y + h / 2}\n')
+        ser.write('LEFT_CLICK\n')
         wait(0.3)
         match = template_finder.search(skill_asset, grab(), threshold=0.84, roi=expanded_skill_roi)
         if match.valid:
-            mouse.move(*match.center_monitor)
+            # mouse.move(*match.center_monitor)
+            ser.write(f'{match.center_monitor[0]},{match.center_monitor[1]}\n')
             wait(0.3)
-            keyboard.send(hotkey)
+            # keyboard.send(hotkey)
+            ser.write(f'{hotkey.toUpperCase()}\n')
+
             wait(0.3)
-            mouse.click("left")
+            # mouse.click("left")
+            ser.write('LEFT_CLICK\n')
             wait(0.3)
+        
+        ser.close()
 
     def remap_right_skill_hotkey(self, skill_asset, hotkey):
         return self._remap_skill_hotkey(skill_asset, hotkey, Config().ui_roi["skill_right"], Config().ui_roi["skill_right_expanded"])

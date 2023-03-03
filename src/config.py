@@ -25,6 +25,7 @@ class Config:
     routes = {}
     routes_order = []
     char = {}
+    serial = {}
     colors = {}
     shop = {}
     path = {}
@@ -154,6 +155,10 @@ class Config:
         # Botty only knows "run_shenk" but in orders we split run_eldritch and run_eldritch_shenk
         self.routes_order = ["run_shenk" if x in ["run_eldritch", "run_eldritch_shenk"] else x for x in self.routes_order]
 
+        self.serial = {
+            "port": self._select_val("serial", "port"),
+            "baudrate": self._select_val("serial", "baudrate")
+        }
         self.char = {
             "type": self._select_val("char", "type"),
             "show_items": self._select_val("char", "show_items"),
