@@ -9,7 +9,7 @@ from cryptography.fernet import Fernet
 import string
 
 
-parser = argparse.ArgumentParser(description="Build Botty")
+parser = argparse.ArgumentParser(description="Build BlueBot")
 parser.add_argument(
     "-v" , "--version",
     type=str,
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     if args.version != "":
         print(f"Releasing new version: {args.version}")
         os.system(f"git checkout -b new-release-v{args.version}")
-        botty_dir = f"botty_v{args.version}"
+        blue_bot_dir = f"botty_v{args.version}"
         version_code = ""
         with open('src/version.py', 'r') as f:
             version_code = f.read()
@@ -58,44 +58,44 @@ if __name__ == "__main__":
         with open('src/version.py', 'w') as f:
             f.write(new_version_code)
     else:
-        botty_dir = f"botty_v{__version__}"
+        blue_bot_dir = f"botty_v{__version__}"
         print(f"Building version: {__version__}")
 
     clean_up()
 
-    if os.path.exists(botty_dir):
-        for path in Path(botty_dir).glob("**/*"):
+    if os.path.exists(blue_bot_dir):
+        for path in Path(blue_bot_dir).glob("**/*"):
             if path.is_file():
                 os.remove(path)
             elif path.is_dir():
                 shutil.rmtree(path)
-        shutil.rmtree(botty_dir)
+        shutil.rmtree(blue_bot_dir)
 
     for exe in ["main.py", "shopper.py"]:
         key_cmd = " "
         if args.use_key:
             key = Fernet.generate_key().decode("utf-8")
             key_cmd = " --key " + key
-        installer_cmd = f"pyinstaller --onefile --distpath {botty_dir}{key_cmd} --exclude-module graphviz --paths .\\src --paths {args.conda_path}\\envs\\botty\\Lib\\site-packages src\\{exe}"
+        installer_cmd = f"pyinstaller --onefile --distpath {blue_bot_dir}{key_cmd} --exclude-module graphviz --paths .\\src --paths {args.conda_path}\\envs\\botty\\Lib\\site-packages src\\{exe}"
         os.system(installer_cmd)
 
-    os.system(f"cd {botty_dir} && mkdir config && cd ..")
+    os.system(f"cd {blue_bot_dir} && mkdir config && cd ..")
 
-    with open(f"{botty_dir}/config/custom.ini", "w") as f:
+    with open(f"{blue_bot_dir}/config/custom.ini", "w") as f:
         f.write("; Add parameters you want to overwrite from param.ini here")
-    shutil.copy("config/game.ini", f"{botty_dir}/config/")
-    shutil.copy("config/params.ini", f"{botty_dir}/config/")
-    shutil.copy("config/shop.ini", f"{botty_dir}/config/")
-    shutil.copy("config/default.bnip", f"{botty_dir}/config/")
-    os.makedirs(f"{botty_dir}/config/bnip", exist_ok=True)
-    shutil.copy("README.md", f"{botty_dir}/")
-    shutil.copytree("assets", f"{botty_dir}/assets")
+    shutil.copy("config/game.ini", f"{blue_bot_dir}/config/")
+    shutil.copy("config/params.ini", f"{blue_bot_dir}/config/")
+    shutil.copy("config/shop.ini", f"{blue_bot_dir}/config/")
+    shutil.copy("config/default.bnip", f"{blue_bot_dir}/config/")
+    os.makedirs(f"{blue_bot_dir}/config/bnip", exist_ok=True)
+    shutil.copy("README.md", f"{blue_bot_dir}/")
+    shutil.copytree("assets", f"{blue_bot_dir}/assets")
     clean_up()
 
     if args.random_name:
         print("Generate random names")
         new_name = ''.join(random.choices(string.ascii_letters, k=random.randint(6, 14)))
-        os.rename(f'{botty_dir}/main.exe', f'{botty_dir}/{new_name}.exe')
+        os.rename(f'{blue_bot_dir}/main.exe', f'{blue_bot_dir}/{new_name}.exe')
 
     if new_version_code is not None:
         os.system(f'git add .')
