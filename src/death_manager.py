@@ -1,8 +1,9 @@
 from utils.misc import wait
 from screen import grab
 from config import Config
-from utils.custom_mouse import mouse
-import keyboard
+# from utils.custom_mouse import mouse
+# import keyboard
+import serial
 import cv2
 from logger import Logger
 import time
@@ -44,18 +45,31 @@ class DeathManager:
                 self._callback()
                 self._callback = None
             # clean up key presses that might be pressed
-            keyboard.release(Config().char["stand_still"])
+            ser = serial.Serial()
+            ser.baudrate = Config().serial["baudrate"]
+            ser.port = Config().serial["port"]
+            ser.open()
+            stand_still = Config().char["stand_still"]
+            ser.write(f"RELEASE|{stand_still}\n")
+            # keyboard.release(Config().char["stand_still"])
             wait(0.1, 0.2)
-            keyboard.release(Config().char["show_items"])
+            show_items = Config().char["show_items"]
+            ser.write(f"RELEASE|{show_items}\n")
+            # keyboard.release(Config().char["show_items"])
             wait(0.1, 0.2)
-            mouse.release(button="right")
+            # mouse.release(button="right")
+            ser.write(f"RELEASE|RIGHT_CLICK\n")
             wait(0.1, 0.2)
-            mouse.release(button="left")
+            # mouse.release(button="left")
+            ser.write(f"RELEASE|LEFT_CLICK\n")
+
             time.sleep(1)
             if is_visible(ScreenObjects.MainMenu):
                 # in this case chicken executed and left the game, but we were still dead.
                 return True
-            keyboard.send("esc")
+            # keyboard.send("esc")
+            ser.write(f"ESC\n")
+            ser.close()
             self._died = True
             return True
         return False
