@@ -1,6 +1,7 @@
 from transitions import Machine
 import time
-import keyboard
+# import keyboard
+import serial
 import time
 import os
 import random
@@ -218,7 +219,15 @@ class Bot:
 
     def on_init(self):
         self._game_stats.log_start_game()
-        keyboard.release(Config().char["stand_still"])
+        ser = serial.Serial()
+        ser.baudrate = Config().serial["baudrate"]
+        ser.port = Config().serial["port"]
+        ser.open()
+        stand_still = Config().char["stand_still"]
+        # todo code this in arduino
+        ser.write(f"RELEASE|{stand_still}\n")
+        ser.close()
+        # keyboard.release(Config().char["stand_still"])
         transition_to_screens = Bot._rebuild_as_asset_to_trigger({
             "select_character": main_menu.MAIN_MENU_MARKERS,
             "start_from_town": town_manager.TOWN_MARKERS,
@@ -248,7 +257,14 @@ class Bot:
         # Start a game from hero selection
         if (m := wait_until_visible(ScreenObjects.MainMenu)).valid:
             if "DARK" in m.name:
-                keyboard.send("esc")
+
+                ser = serial.Serial()
+                ser.baudrate = Config().serial["baudrate"]
+                ser.port = Config().serial["port"]
+                ser.open()
+                ser.write(f"ESC\n")
+                ser.close()
+                # keyboard.send("esc")
             main_menu.start_game()
             view.move_to_corpse()
         else:
